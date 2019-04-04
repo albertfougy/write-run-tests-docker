@@ -1,18 +1,20 @@
 from pathlib import PurePath
-
+import webtest
 import pytest
 from selenium.webdriver.chrome.options import Options as ChromeOptions
-
+from pytest_localserver.http import WSGIServer
 from europython.config import DefaultConfig
+from europython import create_app
+from europython.database import clean_db, init_db
+from europython.test import reset_factories_session
 
 
 @pytest.fixture(scope='session')
 def app(config):
-    """Return the web application.
-
-    :rtype: apistar.App
-    """
-    raise NotImplementedError
+    """Return the web application."""
+    app = create_app(config)
+    app.debug = True
+    return app
 
 
 @pytest.fixture(scope='session')
@@ -21,7 +23,7 @@ def client(app):
 
     :rtype: webtest.TestApp
     """
-    raise NotImplementedError
+    return webtest.TestApp(app)
 
 
 @pytest.fixture(scope='session')
@@ -47,7 +49,13 @@ def db(dbsession, engine):
 
     :rtype: sqlalchemy.orm.session.Session
     """
-    raise NotImplementedError
+    clean_db(engine) # Cleaning at the end make Pytest hanging in Docker
+    init_db(engine)
+
+    reset_factories_session(dbsession)
+
+    return dbsession
+
 
 
 @pytest.fixture(scope='session')
@@ -56,7 +64,11 @@ def server(app):
 
     :rtype: pytest_localserver.http.WSGIServer
     """
-    raise NotImplementedError
+    server = WSGIServer(application=app)
+    server.start()
+    yield server
+    server.stop()
+
 
 
 @pytest.fixture(scope='session')
