@@ -160,9 +160,18 @@ Finally, to simulate a real use case, with a project depending on external syste
 we will also replace with `PostgreSQL`_ the **SQLite** in-memory database
 we were using until now. For this purpose, we will set-up our testing stack with `Docker Compose`_.
 
+* Don't forget the "." at the enddo
+Build image first with:  docker build -t europython/workshop:test .
+
+
 .. _Docker: https://docs.docker.com/engine/reference/builder/
 .. _Docker Compose: https://docs.docker.com/compose/
 .. _PostgreSQL: https://hub.docker.com/_/postgres/
+
+* Need to get into your running container? 
+docker exec -it <container ID> sh
+
+[Use bind mounts for local development](https://docs.docker.com/storage/bind-mounts/)
 
 Hints:
 
